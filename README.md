@@ -26,3 +26,5 @@ uv run python main.py ask --query "Write a short startup pitch for a coffee app.
 ![Logprob visualization](output.png)
 
 In the deep-dive, tokens normalized to YES/NO show which way the model leaned; the final line reports the normalized YES vs NO percentages for that agent. Use the summary table to pick the top agent, and the deep-dive to debug or tune the routing prompt.
+
+- Idea first read: https://cookbook.openai.com/examples/using_logprobs

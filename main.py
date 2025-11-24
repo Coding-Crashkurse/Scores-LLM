@@ -6,6 +6,7 @@ Run:
   uv run python main.py
   uv run python main.py ask --query "I need a pitch"
 """
+
 from __future__ import annotations
 
 import math
@@ -114,8 +115,7 @@ prompt = ChatPromptTemplate.from_messages(
         ("system", SYSTEM_PROMPT),
         (
             "user",
-            "User Query:\n{query}\n\n"
-            "Agent Card:\n{name}: {description}",
+            "User Query:\n{query}\n\nAgent Card:\n{name}: {description}",
         ),
     ]
 )
@@ -149,9 +149,7 @@ def extract_yes_no_enum_stats(
 
     for step in content:
         # 1. Collect primary token and top-k candidates
-        candidates: List[Tuple[str, float]] = [
-            (step["token"], step["logprob"])
-        ]
+        candidates: List[Tuple[str, float]] = [(step["token"], step["logprob"])]
         for alt in step["top_logprobs"]:
             candidates.append((alt["token"], alt["logprob"]))
 
@@ -162,7 +160,9 @@ def extract_yes_no_enum_stats(
 
     if decision_candidates is None:
         # If this happens, the schema/prompt is broken
-        raise RuntimeError("No YES/NO decision token found in logprobs. Check schema/prompt.")
+        raise RuntimeError(
+            "No YES/NO decision token found in logprobs. Check schema/prompt."
+        )
 
     # 3. Find best YES and NO by logprob
     best_lp_yes: float | None = None
@@ -212,10 +212,13 @@ def extract_yes_no_enum_stats(
 
     return p_yes, p_no, stats, decision_candidates
 
+
 # --- 5. SINGLE AGENT -> DECISION + LOGPROBS -----------------------------------
 
 
-def classify_agent(query: str, card: Dict[str, str]) -> Tuple[AgentDecision, List[YesNoStat]]:
+def classify_agent(
+    query: str, card: Dict[str, str]
+) -> Tuple[AgentDecision, List[YesNoStat]]:
     messages = prompt.format_messages(
         query=query,
         name=card["name"],
@@ -260,7 +263,9 @@ def route_query(query: str) -> None:
         decisions.append(decision)
 
     # Sort by p(YES)
-    decisions_sorted = sorted(decisions, key=lambda d: (d.prob_yes or 0.0), reverse=True)
+    decisions_sorted = sorted(
+        decisions, key=lambda d: (d.prob_yes or 0.0), reverse=True
+    )
 
     # 6.1 Summary Table
     table_rows = []
@@ -291,7 +296,9 @@ def route_query(query: str) -> None:
     typer.echo("#" * 60)
 
     for d in decisions_sorted:
-        typer.echo(f"\n>>> Agent: {typer.style(d.agent_name, bold=True, fg=typer.colors.CYAN)}")
+        typer.echo(
+            f"\n>>> Agent: {typer.style(d.agent_name, bold=True, fg=typer.colors.CYAN)}"
+        )
 
         if not d.raw_candidates:
             typer.echo("   (No logprobs captured for the decision step)")
